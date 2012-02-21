@@ -14,8 +14,10 @@
 // $Date$
 // $Revision$
 
+#pragma warning(disable : 4503) // warning: decorated name length exceeded
+#define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
 #if !defined(BOOST_MPL_LIMIT_VECTOR_SIZE)
-#   define BOOST_MPL_LIMIT_VECTOR_SIZE 20
+#   define BOOST_MPL_LIMIT_VECTOR_SIZE 100
 #endif
 
 #endif // BOOST_MPL_LIMITS_VECTOR_HPP_INCLUDED
