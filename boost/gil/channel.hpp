@@ -392,7 +392,7 @@ class packed_channel_reference<BitField,FirstBit,NumBits,false>
     typedef detail::packed_channel_reference_base<packed_channel_reference<BitField,FirstBit,NumBits,false>,BitField,NumBits,false> parent_t;
     friend class packed_channel_reference<BitField,FirstBit,NumBits,true>;
 
-    static const BitField channel_mask = static_cast< BitField >( parent_t::max_val ) << FirstBit;
+    static const BitField channel_mask = static_cast< BitField >( parent_t::max_val << FirstBit );
 
     void operator=(const packed_channel_reference&);
 public:
@@ -417,7 +417,7 @@ class packed_channel_reference<BitField,FirstBit,NumBits,true>
     typedef detail::packed_channel_reference_base<packed_channel_reference<BitField,FirstBit,NumBits,true>,BitField,NumBits,true> parent_t;
     friend class packed_channel_reference<BitField,FirstBit,NumBits,false>;
 
-    static const BitField channel_mask = static_cast< BitField >( parent_t::max_val ) << FirstBit;
+    static const BitField channel_mask = static_cast< BitField >( parent_t::max_val << FirstBit );
 
 public:
     typedef const packed_channel_reference<BitField,FirstBit,NumBits,false> const_reference;
@@ -430,6 +430,7 @@ public:
     const packed_channel_reference& operator=(integer_t value) const { assert(value<=parent_t::max_val); set_unsafe(value); return *this; }
     const packed_channel_reference& operator=(const mutable_reference& ref) const { set_from_reference(ref.get_data()); return *this; }
     const packed_channel_reference& operator=(const const_reference&   ref) const { set_from_reference(ref.get_data()); return *this; }
+    const packed_channel_reference& operator=(const packed_channel_value<NumBits>& val) const { set_unsafe(val); return *this; }
 
     template <bool Mutable1>
     const packed_channel_reference& operator=(const packed_dynamic_channel_reference<BitField,NumBits,Mutable1>& ref) const { set_unsafe(ref.get()); return *this; }
