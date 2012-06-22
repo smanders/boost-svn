@@ -227,7 +227,9 @@ template <typename SrcChannelV, typename DstChannelV>
 struct channel_converter_unsigned_integral_nondivisible<SrcChannelV,DstChannelV,true,false> {
     DstChannelV operator()(SrcChannelV src) const {
         typedef typename detail::min_fast_uint<unsigned_integral_num_bits<SrcChannelV>::value+unsigned_integral_num_bits<DstChannelV>::value>::type integer_t;
-        return DstChannelV(integer_t(src * unsigned_integral_max_value<DstChannelV>::value) / unsigned_integral_max_value<SrcChannelV>::value);
+        typedef typename base_channel_type<DstChannelV>::type dest_t;
+        return DstChannelV(static_cast<dest_t>(
+          integer_t(src * unsigned_integral_max_value<DstChannelV>::value) / unsigned_integral_max_value<SrcChannelV>::value));
     }
 };
 
@@ -243,22 +245,19 @@ struct channel_converter_unsigned_integral_nondivisible<SrcChannelV,DstChannelV,
     }
 };
 
+
 // Both source and destination are unsigned integral channels, 
 // the dst max value is less than (or equal to) the src max value,
 // and the src max value is not divisible by the dst max value
 template <typename SrcChannelV, typename DstChannelV, bool CannotFit> 
 struct channel_converter_unsigned_integral_nondivisible<SrcChannelV,DstChannelV,false,CannotFit> {
     DstChannelV operator()(SrcChannelV src) const { 
+        typedef typename base_channel_type<SrcChannelV>::type src_integer_t;
+        typedef typename base_channel_type<DstChannelV>::type dst_integer_t;
 
-        typedef typename detail::unsigned_integral_max_value< SrcChannelV >::value_type src_integer_t;
-        typedef typename detail::unsigned_integral_max_value< DstChannelV >::value_type dst_integer_t;
-
-        static const double div = unsigned_integral_max_value<SrcChannelV>::value 
-                                / static_cast< double >( unsigned_integral_max_value<DstChannelV>::value );
-
-        static const src_integer_t div2 = static_cast< src_integer_t >( div / 2.0 );
-
-        return DstChannelV( static_cast< dst_integer_t >(( static_cast< double >( src + div2 ) / div )));
+        static const double div = unsigned_integral_max_value<SrcChannelV>::value / double(unsigned_integral_max_value<DstChannelV>::value);
+        static const src_integer_t div2 = static_cast<src_integer_t>(div/2);
+        return DstChannelV(static_cast<dst_integer_t>((src + div2) / div));
     }
 };
 
@@ -269,10 +268,9 @@ struct channel_converter_unsigned_integral_nondivisible<SrcChannelV,DstChannelV,
 /////////////////////////////////////////////////////
 
 template <typename DstChannelV> struct channel_converter_unsigned<bits32f,DstChannelV> : public std::unary_function<bits32f,DstChannelV> {
-    DstChannelV operator()(bits32f x) const
-    {
-        typedef typename detail::unsigned_integral_max_value< DstChannelV >::value_type dst_integer_t;
-        return DstChannelV( static_cast< dst_integer_t >(x*channel_traits<DstChannelV>::max_value()+0.5f ));
+    DstChannelV   operator()(bits32f x) const {
+      typedef typename detail::unsigned_integral_max_value<DstChannelV>::value_type dst_integer_t;
+      return DstChannelV(static_cast<dst_integer_t>(x*channel_traits<DstChannelV>::max_value()+0.5f));
     }
 };
 
@@ -410,7 +408,7 @@ assert(mul == 64);    // 64 = 128 * 128 / 255
 template <typename ChannelValue>
 struct channel_multiplier_unsigned : public std::binary_function<ChannelValue,ChannelValue,ChannelValue> {
     ChannelValue operator()(ChannelValue a, ChannelValue b) const {
-        return ChannelValue(a / double(channel_traits<ChannelValue>::max_value()) * b);
+        return ChannelValue(static_cast<typename base_channel_type<ChannelValue>::type>(a / double(channel_traits<ChannelValue>::max_value()) * b));
     }
 };
 
