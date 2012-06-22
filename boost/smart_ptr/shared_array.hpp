@@ -117,6 +117,7 @@ public:
     shared_array( shared_array<Y> const & r, T * p ): px( p ), pn( r.pn ) // never throws
     {
     }
+
     void reset(T * p = 0)
     {
         BOOST_ASSERT(p == 0 || p != px);
