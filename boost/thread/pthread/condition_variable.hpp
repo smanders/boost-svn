@@ -48,20 +48,25 @@ namespace boost
     inline void condition_variable::wait(unique_lock<mutex>& m)
     {
         thread_cv_detail::lock_on_exit<unique_lock<mutex> > guard;
-        detail::interruption_checker check_for_interruption(&internal_mutex,&cond);
-        guard.activate(m);
-        int const res=pthread_cond_wait(&cond,&internal_mutex);
-        BOOST_ASSERT(!res);
+        {
+            detail::interruption_checker check_for_interruption(&internal_mutex,&cond);
+            guard.activate(m);
+            int const res=pthread_cond_wait(&cond,&internal_mutex);
+            BOOST_ASSERT(!res);
+        }
         this_thread::interruption_point();
     }
 
     inline bool condition_variable::timed_wait(unique_lock<mutex>& m,boost::system_time const& wait_until)
     {
+        int cond_res;
         thread_cv_detail::lock_on_exit<unique_lock<mutex> > guard;
-        detail::interruption_checker check_for_interruption(&internal_mutex,&cond);
-        guard.activate(m);
-        struct timespec const timeout=detail::get_timespec(wait_until);
-        int const cond_res=pthread_cond_timedwait(&cond,&internal_mutex,&timeout);
+        {
+            detail::interruption_checker check_for_interruption(&internal_mutex,&cond);
+            guard.activate(m);
+            struct timespec const timeout=detail::get_timespec(wait_until);
+            cond_res=pthread_cond_timedwait(&cond,&internal_mutex,&timeout);
+        }
         this_thread::interruption_point();
         if(cond_res==ETIMEDOUT)
         {
@@ -118,9 +123,11 @@ namespace boost
             int res=0;
             {
                 thread_cv_detail::lock_on_exit<lock_type> guard;
-                detail::interruption_checker check_for_interruption(&internal_mutex,&cond);
-                guard.activate(m);
-                res=pthread_cond_wait(&cond,&internal_mutex);
+                {
+                    detail::interruption_checker check_for_interruption(&internal_mutex,&cond);
+                    guard.activate(m);
+                    res=pthread_cond_wait(&cond,&internal_mutex);
+                }
                 this_thread::interruption_point();
             }
             if(res)
@@ -142,9 +149,11 @@ namespace boost
             int res=0;
             {
                 thread_cv_detail::lock_on_exit<lock_type> guard;
-                detail::interruption_checker check_for_interruption(&internal_mutex,&cond);
-                guard.activate(m);
-                res=pthread_cond_timedwait(&cond,&internal_mutex,&timeout);
+                {
+                    detail::interruption_checker check_for_interruption(&internal_mutex,&cond);
+                    guard.activate(m);
+                    res=pthread_cond_timedwait(&cond,&internal_mutex,&timeout);
+                }
                 this_thread::interruption_point();
             }
             if(res==ETIMEDOUT)
