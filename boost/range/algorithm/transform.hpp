@@ -58,6 +58,7 @@ namespace boost
                        OutputIterator                       out,
                        BinaryFunction                       fn)
         {
+            boost::ignore_unused_variable_warning(last2);
             for (; first1 != last1; ++first1, ++first2)
             {
                 BOOST_ASSERT( first2 != last2 );
