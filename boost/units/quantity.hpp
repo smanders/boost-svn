@@ -280,6 +280,16 @@ class quantity
         ///< can divide a quantity by a scalar value_type if divide_typeof_helper<value_type,value_type>::type is convertible to value_type
         this_type& operator/=(const value_type& source) { val_ /= source; return *this; }
     
+        this_type& operator++()
+        { ++val_; return *this; }
+        this_type operator++(int)
+        { this_type rval = *this; val_++; return rval; }
+
+        this_type& operator--()
+        { --val_; return *this; }
+        this_type operator--(int)
+        { this_type rval = *this; val_--; return rval; }
+
         /// Construct quantity directly from @c value_type (potentially dangerous).
         static this_type from_value(const value_type& val)  { return this_type(val, 0); }
 
@@ -1138,6 +1148,12 @@ operator/(const quantity<Unit1,X>& lhs,
     
     return type::from_value(lhs.value()/rhs.value());
 }
+
+/// runtime operator%
+template <class Unit, class X, class Y>
+inline
+quantity<Unit,X> operator%(const quantity<Unit,X>& lhs, const Y& rhs)
+{ return quantity<Unit,X>::from_value(lhs.value() % rhs); }
 
 /// runtime operator==
 template<class Unit,
