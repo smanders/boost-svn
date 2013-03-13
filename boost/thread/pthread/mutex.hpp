@@ -17,10 +17,8 @@
 #include <boost/thread/pthread/timespec.hpp>
 #include <boost/thread/pthread/pthread_mutex_scoped_lock.hpp>
 
-#ifdef _POSIX_TIMEOUTS
-#if _POSIX_TIMEOUTS >= 0 && _POSIX_C_SOURCE>=200112L
+#if defined(_POSIX_TIMEOUTS) && _POSIX_TIMEOUTS >= 200112L
 #define BOOST_PTHREAD_HAS_TIMEDLOCK
-#endif
 #endif
 
 #include <boost/config/abi_prefix.hpp>
